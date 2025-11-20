@@ -185,7 +185,7 @@ Python 3.4 及之后版本支持<a href="https://docs.python.org/zh-cn/3/library
 
 即使嵌套在 JSON 请求体里（例如， `dict`），也可以从*路径操作*返回*枚举元素*。
 
-返回给客户端之前，要把枚举元素转换为对应的值（本例中为字符串）：
+返回给客户端之前，枚举元素会被转换为对应的值（本例中为字符串）：
 
 {* ../../docs_src/path_params/tutorial005.py hl[18,21,23] *}
 

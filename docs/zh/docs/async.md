@@ -40,7 +40,27 @@ def results():
 
 ---
 
-如果你的应用程序不需要与其他任何东西通信而等待其响应，请使用 `async def`。
+如果你的应用程序不需要与其他任何东西通信而等待其响应，请使用 `async def`。即使你无需在内部使用 `await` 也是如此。
+<!-- TODO 这里意思不明确 我查询了AI
+1. 性能优化：事件循环的解放 🚀
+在 Python 的异步框架（如 FastAPI）中：
+
+当框架调用一个用 async def 定义的函数时，它会直接在 异步事件循环 (Async Event Loop) 中执行它。这是一个设计用来处理并发 I/O（网络、数据库等待）的高效环境。
+
+如果你的函数是一个普通的 def（同步函数），即使它运行得很快，FastAPI 也会出于安全考虑，将其移动到一个单独的线程池 (Thread Pool) 中去执行。
+
+关键点： 即使你的 async def 函数内部没有 await，它也是在事件循环中被同步且快速地执行的，没有线程切换的开销。而一个 def 函数，无论多快，都会强制框架进行线程切换，这反而会增加微小的开销
+2. 避免未来重构的痛苦 🔧
+现在你的函数可能只是计算一个简单的数学表达式，不需要 await。
+
+但未来，你可能需要在这个函数中添加一个数据库查询、一个外部 API 调用，或是一个文件读取操作。
+
+如果你一开始就使用了 async def，你只需要在内部添加 await some_async_call() 即可。
+
+如果你一开始使用了 def，未来就需要将整个函数签名重构为 async def，这可能影响到所有调用它的上游代码。
+
+提前使用 async def，可以让你轻松地在未来引入异步 I/O 操作。
+ -->
 
 ---
 
@@ -66,13 +86,13 @@ Python 的现代版本支持通过一种叫**"协程"**——使用 `async` 和 
 
 ## 异步代码
 
-异步代码仅仅意味着编程语言 💬 有办法告诉计算机/程序 🤖 在代码中的某个点，它 🤖 将不得不等待在某些地方完成一些事情。让我们假设一些事情被称为 "慢文件"📝.
+异步代码仅仅意味着编程语言 💬 有办法告诉计算机/程序 🤖 在代码中的某个点，它 🤖 将不得不等待在某些地方完成*一些事情*。让我们假设*这些事情*被称为 "慢文件"📝。
 
 所以，在等待"慢文件"📝完成的这段时间，计算机可以做一些其他工作。
 
 然后计算机/程序 🤖 每次有机会都会回来，因为它又在等待，或者它 🤖 完成了当前所有的工作。而且它 🤖 将查看它等待的所有任务中是否有已经完成的，做它必须做的任何事情。
 
-接下来，它 🤖 完成第一个任务（比如是我们的"慢文件"📝) 并继续与之相关的一切。
+接下来，它 🤖 完成第一个任务（比如是我们的"慢文件"📝）并继续与之相关的一切。
 
 这个"等待其他事情"通常指的是一些相对较慢（与处理器和 RAM 存储器的速度相比）的 <abbr title="Input and Output">I/O</abbr> 操作，比如说：
 
@@ -83,7 +103,7 @@ Python 的现代版本支持通过一种叫**"协程"**——使用 `async` 和 
 * 一个 API 的远程调用
 * 一个数据库操作，直到完成
 * 一个数据库查询，直到返回结果
-* 等等.
+* 等等。
 
 这个执行的时间大多是在等待 <abbr title="Input and Output">I/O</abbr> 操作，因此它们被叫做 "I/O 密集型" 操作。
 
@@ -316,16 +336,16 @@ burgers = await get_burgers(2)
 
 ```Python hl_lines="1"
 async def get_burgers(number: int):
-    # Do some asynchronous stuff to create the burgers
+    # 执行一些异步操作来制作汉堡
     return burgers
 ```
 
 ...而不是 `def`:
 
 ```Python hl_lines="2"
-# This is not asynchronous
+# 这不是异步操作
 def get_sequential_burgers(number: int):
-    # Do some sequential stuff to create the burgers
+    # 执行一些顺序操作来制作汉堡
     return burgers
 ```
 
@@ -334,9 +354,10 @@ def get_sequential_burgers(number: int):
 当你想调用一个 `async def` 函数时，你必须"等待"它。因此，这不会起作用：
 
 ```Python
-# This won't work, because get_burgers was defined with: async def
+# 这行不通，因为 get_burgers 是用 async def 定义的。
 burgers = get_burgers(2)
 ```
+<!-- TODO 这里实际上是可以工作的，只是你必须事后去await -->
 
 ---
 
